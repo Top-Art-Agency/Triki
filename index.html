@@ -105,17 +105,40 @@
 
   /* ── DELETE BUTTONS ── */
   .delete-btn {
-    display: none; position: absolute;
-    top: 50%; right: -32px; transform: translateY(-50%);
-    width: 24px; height: 24px;
+    display: none;
+    position: absolute;
+    top: 6px; right: 6px;
+    transform: none;
+    width: 22px; height: 22px;
     background: #e74c3c; border: none; border-radius: 50%;
     color: white; font-size: 13px; cursor: pointer;
-    align-items: center; justify-content: center; line-height: 1; z-index: 10;
+    align-items: center; justify-content: center; line-height: 1; z-index: 20;
+    flex-shrink: 0;
   }
-  body.edit-mode .method-row:hover > .delete-btn,
-  body.edit-mode .event-card:hover > .delete-btn,
+
+  /* method-row: przycisk w lewym górnym rogu */
+  body.edit-mode .method-row:hover > .delete-btn { display: flex; }
+
+  /* event-card */
+  .event-card { position: relative; overflow: visible; }
+  body.edit-mode .event-card:hover > .delete-btn { display: flex; }
+
+  /* event-detail: mały x inline po prawej */
+  .event-detail { position: relative; padding-right: 28px; }
+  .event-detail .delete-btn { top: 50%; right: 2px; transform: translateY(-50%); width: 18px; height: 18px; font-size: 11px; }
   body.edit-mode .event-detail:hover > .delete-btn { display: flex; }
-  .method-row, .event-card, .event-detail { position: relative; }
+
+  /* how-card */
+  .how-card { background: white; border: 1px solid var(--rule); border-radius: 4px; padding: 20px 20px 18px; position: relative; overflow: visible; }
+  body.edit-mode .how-card:hover > .delete-btn { display: flex; }
+
+  /* how-step */
+  .how-step .delete-btn { top: 50%; right: 2px; transform: translateY(-50%); width: 18px; height: 18px; font-size: 11px; }
+  body.edit-mode .how-step:hover > .delete-btn { display: flex; }
+
+  /* gallery */
+  body.edit-mode .photo-item:hover .photo-del { display: flex; }
+  body.edit-mode .gallery-event:hover .gallery-event-del { display: block; }
 
   /* ── ADD BUTTONS ── */
   .add-row-btn {
@@ -433,7 +456,6 @@
     gap: 14px;
     margin-bottom: 20px;
   }
-  .how-card { background: white; border: 1px solid var(--rule); border-radius: 4px; padding: 20px 20px 18px; position: relative; overflow: visible; }
   .how-card-icon { font-size: 26px; line-height: 1; margin-bottom: 10px; display: block; }
   .how-card-title { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
   .how-card-body { font-size: 13px; color: var(--mid); line-height: 1.65; }
@@ -559,37 +581,37 @@
 
     <div class="how-grid">
 
-      <div class="how-card">
+      <div class="how-card"><button class="delete-btn" onclick="this.closest('.how-card').remove()">×</button>
         <span class="how-card-icon">📐</span>
         <div class="how-card-title">Czym jest</div>
         <div class="how-card-body" contenteditable="true">Triki to najmniejszy na świecie kontroler do gier mobilnych w formie kapsla. Wyposażony w żyroskop, prędkościomierz i detektory ruchu, które rozszerzają interakcję z grami o element fizyczny.</div>
       </div>
 
-      <div class="how-card">
+      <div class="how-card"><button class="delete-btn" onclick="this.closest('.how-card').remove()">×</button>
         <span class="how-card-icon">🔋</span>
         <div class="how-card-title">Zasilanie</div>
         <div class="how-card-body" contenteditable="true">Triki zasilany jest wymienną baterią – nie akumulatorem. Przed każdym wydarzeniem należy upewnić się, że bateria jest naładowana lub mieć zapas baterii wymiennych.</div>
       </div>
 
-      <div class="how-card">
+      <div class="how-card"><button class="delete-btn" onclick="this.closest('.how-card').remove()">×</button>
         <span class="how-card-icon">📱</span>
         <div class="how-card-title">Połączenie</div>
         <div class="how-card-body" contenteditable="true">Triki łączy się przez Bluetooth bezpośrednio z aplikacją Żappka na iPhone lub iPad. Nie łączy się ze sprzętem – kluczowe jest urządzenie z aplikacją, nie urządzenie wyświetlające.</div>
       </div>
 
-      <div class="how-card">
+      <div class="how-card"><button class="delete-btn" onclick="this.closest('.how-card').remove()">×</button>
         <span class="how-card-icon">🎮</span>
         <div class="how-card-title">Sterowanie</div>
         <div class="how-card-body" contenteditable="true">Urządzenie reaguje na ruch – potrząsanie, obrót, siłę uderzenia. Każda gra w Żappce wykorzystuje inne gesty. Triki umożliwia nowe formaty rozgrywki niedostępne bez fizycznego kontrolera.</div>
       </div>
 
-      <div class="how-card">
+      <div class="how-card"><button class="delete-btn" onclick="this.closest('.how-card').remove()">×</button>
         <span class="how-card-icon">🏆</span>
         <div class="how-card-title">Nagrody</div>
         <div class="how-card-body" contenteditable="true">Za wyniki w grach użytkownik zdobywa żappsy – punkty w ekosystemie Żappki – oraz zniżki na produkty w sklepach Żabka i fizyczne nagrody. Współpraca z markami partnerskimi dostarcza ekskluzywnych nagród dla graczy.</div>
       </div>
 
-      <div class="how-card">
+      <div class="how-card"><button class="delete-btn" onclick="this.closest('.how-card').remove()">×</button>
         <span class="how-card-icon">🌐</span>
         <div class="how-card-title">Ekosystem</div>
         <div class="how-card-body" contenteditable="true">Triki działa w ramach Strefy Gier w aplikacji Żappka – jednej z największych aplikacji retailowych w Polsce, z ponad 10,7 mln użytkowników. Brak konieczności logowania na zewnętrznych platformach.</div>
@@ -647,9 +669,9 @@
           <div class="event-location" contenteditable="true">📍 Sopot · 5–6 maja 2026</div>
         </div>
         <div class="event-body">
-          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true"><strong>2 strefy</strong> z Trikim działające równolegle</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
-          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Rywalizacja na scenie – tryb versus między uczestnikami</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
-          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Format: aktywizacja podczas eventu zamkniętego</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true"><strong>2 strefy</strong> z Trikim działające równolegle</span><button class="delete-btn" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Rywalizacja na scenie – tryb versus między uczestnikami</span><button class="delete-btn" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Format: aktywizacja podczas eventu zamkniętego</span><button class="delete-btn" onclick="this.closest('.event-detail').remove()">×</button></div>
           <button class="add-row-btn" onclick="addDetailToCard(this)">+ dodaj punkt</button>
         </div>
       </div>
@@ -662,9 +684,9 @@
           <div class="event-location" contenteditable="true">📍 Poznań · 13–14 maja 2026</div>
         </div>
         <div class="event-body">
-          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true"><strong>1 strefa</strong> z Trikim</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
-          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Wydarzenie otwarte – duży ruch uczestników</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
-          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Format: stoisko aktywacyjne</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true"><strong>1 strefa</strong> z Trikim</span><button class="delete-btn" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Wydarzenie otwarte – duży ruch uczestników</span><button class="delete-btn" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Format: stoisko aktywacyjne</span><button class="delete-btn" onclick="this.closest('.event-detail').remove()">×</button></div>
           <button class="add-row-btn" onclick="addDetailToCard(this)">+ dodaj punkt</button>
         </div>
       </div>
@@ -677,8 +699,8 @@
           <div class="event-location" contenteditable="true">📍 Warszawa · 19 czerwca 2026</div>
         </div>
         <div class="event-body">
-          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Wydarzenie z okazji Dnia Dziecka we współpracy z marką Pepsi</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
-          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true"><strong>1 stanowisko</strong> z Trikim – stoisko analogiczne do Spotkania Strategicznego w Sopocie</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Wydarzenie z okazji Dnia Dziecka we współpracy z marką Pepsi</span><button class="delete-btn" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true"><strong>1 stanowisko</strong> z Trikim – stoisko analogiczne do Spotkania Strategicznego w Sopocie</span><button class="delete-btn" onclick="this.closest('.event-detail').remove()">×</button></div>
           <button class="add-row-btn" onclick="addDetailToCard(this)">+ dodaj punkt</button>
         </div>
       </div>
@@ -950,7 +972,7 @@ function addDetailToCard(btn) {
   const body = btn.closest('.event-body');
   const detail = document.createElement('div');
   detail.className = 'event-detail';
-  detail.innerHTML = `<span class="detail-dot">▸</span><span contenteditable="true">Nowy punkt</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button>`;
+  detail.innerHTML = `<span class="detail-dot">▸</span><span contenteditable="true">Nowy punkt</span><button class="delete-btn" onclick="this.closest('.event-detail').remove()">×</button>`;
   body.insertBefore(detail, btn);
   detail.querySelector('[contenteditable]').focus();
 }
@@ -977,7 +999,7 @@ function confirmAddEvent() {
   const badgeClass = isPast ? 'badge-past' : 'badge-future';
   const location = date ? `📍 ${city} · ${date}` : `📍 ${city}`;
   const detailsHTML = details.map(d =>
-    `<div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">${d}</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>`
+    `<div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">${d}</span><button class="delete-btn" onclick="this.closest('.event-detail').remove()">×</button></div>`
   ).join('');
   const card = document.createElement('div');
   card.className = `event-card ${cardClass}`;
