@@ -426,6 +426,24 @@
   /* ── SAVE NOTICE ── */
   #save-notice { display: none; position: fixed; bottom: 24px; right: 24px; background: var(--green); color: white; padding: 12px 20px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; z-index: 3000; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
 
+  /* ── HOW IT WORKS ── */
+  .how-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .how-card { background: white; border: 1px solid var(--rule); border-radius: 4px; padding: 20px 20px 18px; position: relative; }
+  .how-card-icon { font-size: 26px; line-height: 1; margin-bottom: 10px; display: block; }
+  .how-card-title { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .how-card-body { font-size: 13px; color: var(--mid); line-height: 1.65; }
+  .how-steps { background: white; border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 4px; padding: 20px 24px; }
+  .how-steps-title { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+  .how-step { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 10px; font-size: 13px; color: var(--ink); line-height: 1.6; position: relative; }
+  .how-step:last-of-type { margin-bottom: 0; }
+  .how-step-num { font-family: 'DM Mono', monospace; font-size: 10px; color: white; background: var(--accent); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  body.edit-mode .how-step:hover .delete-btn { display: flex; }
+
   /* ── PRINT ── */
   @media print {
     #toolbar, .tab-bar, .add-row-btn, .delete-btn, .gallery-add-event-btn, .photo-add-tile, .photo-del { display: none !important; }
@@ -529,10 +547,73 @@
     </div>
   </header>
 
-  <!-- SEKCJA 1: KALENDARZ -->
+  <!-- SEKCJA 1: DZIAŁANIE TRIKI -->
   <section>
     <div class="section-header">
       <span class="section-num">01</span>
+      <h2 contenteditable="true">Działanie Triki</h2>
+      <div class="rule-line"></div>
+    </div>
+
+    <div class="how-grid">
+
+      <div class="how-card">
+        <span class="how-card-icon">🔋</span>
+        <div class="how-card-title">Zasilanie</div>
+        <div class="how-card-body" contenteditable="true">Triki zasilany jest wymienną baterią – nie akumulatorem. Przed każdym wydarzeniem należy upewnić się, że bateria jest naładowana lub mieć zapas baterii wymiennych.</div>
+      </div>
+
+      <div class="how-card">
+        <span class="how-card-icon">📱</span>
+        <div class="how-card-title">Połączenie</div>
+        <div class="how-card-body" contenteditable="true">Triki łączy się przez Bluetooth bezpośrednio z aplikacją Żappka zainstalowaną na iPhone lub iPad. Nie łączy się ze sprzętem – kluczowe jest urządzenie z aplikacją, nie urządzenie wyświetlające.</div>
+      </div>
+
+      <div class="how-card">
+        <span class="how-card-icon">🎮</span>
+        <div class="how-card-title">Sterowanie</div>
+        <div class="how-card-body" contenteditable="true">Urządzenie reaguje na ruch – potrząsanie, obrót, siłę uderzenia. Każda gra w Żappce wykorzystuje inne gesty. Wyniki zapisywane są w rankingu dostępnym przez QR kod.</div>
+      </div>
+
+    </div>
+
+    <div class="how-steps">
+      <div class="how-steps-title">Uruchomienie krok po kroku</div>
+
+      <div class="how-step">
+        <span class="how-step-num">1</span>
+        <span contenteditable="true">Włóż baterię lub sprawdź czy jest naładowana – Triki nie działa na akumulatorze.</span>
+        <button class="delete-btn" style="right:-28px" onclick="this.closest('.how-step').remove()">×</button>
+      </div>
+      <div class="how-step">
+        <span class="how-step-num">2</span>
+        <span contenteditable="true">Uruchom Triki – przytrzymaj przycisk zasilania aż do zaświecenia się wskaźnika.</span>
+        <button class="delete-btn" style="right:-28px" onclick="this.closest('.how-step').remove()">×</button>
+      </div>
+      <div class="how-step">
+        <span class="how-step-num">3</span>
+        <span contenteditable="true">Otwórz aplikację Żappka na iPhone lub iPad – upewnij się, że Bluetooth jest włączony.</span>
+        <button class="delete-btn" style="right:-28px" onclick="this.closest('.how-step').remove()">×</button>
+      </div>
+      <div class="how-step">
+        <span class="how-step-num">4</span>
+        <span contenteditable="true">W aplikacji przejdź do sekcji Triki i wybierz grę – urządzenie połączy się automatycznie przez Bluetooth.</span>
+        <button class="delete-btn" style="right:-28px" onclick="this.closest('.how-step').remove()">×</button>
+      </div>
+      <div class="how-step">
+        <span class="how-step-num">5</span>
+        <span contenteditable="true">Po zakończeniu gry uczestnik wpisuje wynik do rankingu – dostępnego przez QR kod na plakacie lub ekranie.</span>
+        <button class="delete-btn" style="right:-28px" onclick="this.closest('.how-step').remove()">×</button>
+      </div>
+
+      <button class="add-row-btn" onclick="addHowStep(this)">+ dodaj krok</button>
+    </div>
+  </section>
+
+  <!-- SEKCJA 2: KALENDARZ -->
+  <section>
+    <div class="section-header">
+      <span class="section-num">02</span>
       <h2 contenteditable="true">Kalendarz wydarzeń</h2>
       <div class="rule-line"></div>
     </div>
@@ -585,10 +666,10 @@
     </div>
   </section>
 
-  <!-- SEKCJA 2: METODY -->
+  <!-- SEKCJA 3: METODY -->
   <section>
     <div class="section-header">
-      <span class="section-num">02</span>
+      <span class="section-num">03</span>
       <h2 contenteditable="true">Metody wyświetlania na telewizorze</h2>
       <div class="rule-line"></div>
     </div>
@@ -633,10 +714,10 @@
     </div>
   </section>
 
-  <!-- SEKCJA 3: GRY -->
+  <!-- SEKCJA 4: GRY -->
   <section>
     <div class="section-header">
-      <span class="section-num">03</span>
+      <span class="section-num">04</span>
       <h2 contenteditable="true">Dostępne gry w Triki</h2>
       <div class="rule-line"></div>
     </div>
@@ -675,10 +756,10 @@
     </div>
   </section>
 
-  <!-- SEKCJA 4: WNIOSKI -->
+  <!-- SEKCJA 5: WNIOSKI -->
   <section>
     <div class="section-header">
-      <span class="section-num">04</span>
+      <span class="section-num">05</span>
       <h2 contenteditable="true">Wnioski</h2>
       <div class="rule-line"></div>
     </div>
@@ -810,6 +891,22 @@ function toggleBadge(el) {
     el.textContent = 'Odbyło się';
     el.closest('.event-card').classList.replace('future', 'past');
   }
+}
+
+// ─── ADD HOW STEP ───
+function addHowStep(btn) {
+  const container = btn.closest('.how-steps');
+  const steps = container.querySelectorAll('.how-step');
+  const num = steps.length + 1;
+  const step = document.createElement('div');
+  step.className = 'how-step';
+  step.innerHTML = `
+    <span class="how-step-num">${num}</span>
+    <span contenteditable="true">Nowy krok...</span>
+    <button class="delete-btn" style="right:-28px" onclick="this.closest('.how-step').remove()">×</button>
+  `;
+  container.insertBefore(step, btn);
+  step.querySelector('[contenteditable]').focus();
 }
 
 // ─── ADD METHOD ROW ───
