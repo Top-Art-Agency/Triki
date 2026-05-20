@@ -433,16 +433,18 @@
     gap: 14px;
     margin-bottom: 20px;
   }
-  .how-card { background: white; border: 1px solid var(--rule); border-radius: 4px; padding: 20px 20px 18px; position: relative; }
+  .how-card { background: white; border: 1px solid var(--rule); border-radius: 4px; padding: 20px 20px 18px; position: relative; overflow: visible; }
   .how-card-icon { font-size: 26px; line-height: 1; margin-bottom: 10px; display: block; }
   .how-card-title { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
   .how-card-body { font-size: 13px; color: var(--mid); line-height: 1.65; }
-  .how-steps { background: white; border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 4px; padding: 20px 24px; }
+  .how-steps { background: white; border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 4px; padding: 20px 24px; overflow: visible; }
   .how-steps-title { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
-  .how-step { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 10px; font-size: 13px; color: var(--ink); line-height: 1.6; position: relative; }
+  .how-step { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 10px; font-size: 13px; color: var(--ink); line-height: 1.6; position: relative; padding-right: 36px; }
   .how-step:last-of-type { margin-bottom: 0; }
+  .how-step > span:last-of-type { flex: 1; min-width: 0; }
   .how-step-num { font-family: 'DM Mono', monospace; font-size: 10px; color: white; background: var(--accent); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
   body.edit-mode .how-step:hover .delete-btn { display: flex; }
+  .how-step .delete-btn { position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
 
   /* ── PRINT ── */
   @media print {
@@ -601,27 +603,27 @@
       <div class="how-step">
         <span class="how-step-num">1</span>
         <span contenteditable="true">Włóż baterię lub sprawdź czy jest naładowana – Triki nie działa na akumulatorze.</span>
-        <button class="delete-btn" style="right:-28px" onclick="this.closest('.how-step').remove()">×</button>
+        <button class="delete-btn" onclick="this.closest('.how-step').remove()">×</button>
       </div>
       <div class="how-step">
         <span class="how-step-num">2</span>
         <span contenteditable="true">Uruchom Triki – przytrzymaj przycisk zasilania aż do zaświecenia się wskaźnika.</span>
-        <button class="delete-btn" style="right:-28px" onclick="this.closest('.how-step').remove()">×</button>
+        <button class="delete-btn" onclick="this.closest('.how-step').remove()">×</button>
       </div>
       <div class="how-step">
         <span class="how-step-num">3</span>
         <span contenteditable="true">Otwórz aplikację Żappka na iPhone lub iPad – upewnij się, że Bluetooth jest włączony.</span>
-        <button class="delete-btn" style="right:-28px" onclick="this.closest('.how-step').remove()">×</button>
+        <button class="delete-btn" onclick="this.closest('.how-step').remove()">×</button>
       </div>
       <div class="how-step">
         <span class="how-step-num">4</span>
         <span contenteditable="true">W aplikacji przejdź do Strefy Gier i wybierz grę – Triki połączy się automatycznie przez Bluetooth.</span>
-        <button class="delete-btn" style="right:-28px" onclick="this.closest('.how-step').remove()">×</button>
+        <button class="delete-btn" onclick="this.closest('.how-step').remove()">×</button>
       </div>
       <div class="how-step">
         <span class="how-step-num">5</span>
         <span contenteditable="true">Po zakończeniu gry uczestnik wpisuje wynik do rankingu – dostępnego przez QR kod na stronie top-art-agency.github.io/Ranking-Triki/</span>
-        <button class="delete-btn" style="right:-28px" onclick="this.closest('.how-step').remove()">×</button>
+        <button class="delete-btn" onclick="this.closest('.how-step').remove()">×</button>
       </div>
 
       <button class="add-row-btn" onclick="addHowStep(this)">+ dodaj krok</button>
@@ -921,7 +923,7 @@ function addHowStep(btn) {
   step.innerHTML = `
     <span class="how-step-num">${num}</span>
     <span contenteditable="true">Nowy krok...</span>
-    <button class="delete-btn" style="right:-28px" onclick="this.closest('.how-step').remove()">×</button>
+    <button class="delete-btn" onclick="this.closest('.how-step').remove()">×</button>
   `;
   container.insertBefore(step, btn);
   step.querySelector('[contenteditable]').focus();
