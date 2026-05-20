@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triki – Raport Techniczny</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f2ec;
+    --accent: #c8401a;
+    --mid: #6b6560;
+    --rule: #d8d3cb;
+    --green: #2a6e4a;
+    --green-light: #e8f2ed;
+    --amber: #b87a1a;
+    --amber-light: #fdf3e3;
+    --red-light: #fdecea;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 110px 48px 80px;
+  }
+
+  /* ── TOOLBAR ── */
+  #toolbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: #1a1a1a;
+    color: white;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+    height: 48px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+
+  #toolbar .toolbar-title { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #888; margin-right: 4px; }
+  #toolbar button {
+    background: #333; border: 1px solid #444; color: white;
+    padding: 4px 12px; border-radius: 4px; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em;
+    transition: background 0.15s; white-space: nowrap;
+  }
+  #toolbar button:hover { background: #444; }
+  #toolbar button.primary { background: var(--accent); border-color: var(--accent); }
+  #toolbar button.primary:hover { background: #a33315; }
+  #toolbar button.success { background: var(--green); border-color: var(--green); }
+  #toolbar button.success:hover { background: #1e5237; }
+  #toolbar .spacer { flex: 1; }
+  #toolbar .hint { font-size: 10px; color: #555; letter-spacing: 0.03em; }
+
+  /* ── TABS ── */
+  .tab-bar {
+    position: fixed;
+    top: 48px; left: 0; right: 0;
+    background: #f0ede6;
+    border-bottom: 2px solid var(--rule);
+    display: flex;
+    z-index: 999;
+    padding: 0 48px;
+    max-width: none;
+  }
+
+  .tab-btn {
+    padding: 12px 28px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: none;
+    background: transparent;
+    color: var(--mid);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+
+  /* ── TAB PANELS ── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── EDIT HIGHLIGHTS ── */
+  [contenteditable="true"] { outline: none; border-radius: 3px; transition: background 0.15s, box-shadow 0.15s; }
+  body.edit-mode [contenteditable="true"]:hover { background: rgba(200,64,26,0.06); box-shadow: inset 0 0 0 1px rgba(200,64,26,0.3); cursor: text; }
+  body.edit-mode [contenteditable="true"]:focus { background: rgba(200,64,26,0.08); box-shadow: inset 0 0 0 2px rgba(200,64,26,0.5); }
+
+  /* ── DELETE BUTTONS ── */
+  .delete-btn {
+    display: none; position: absolute;
+    top: 50%; right: -32px; transform: translateY(-50%);
+    width: 24px; height: 24px;
+    background: #e74c3c; border: none; border-radius: 50%;
+    color: white; font-size: 13px; cursor: pointer;
+    align-items: center; justify-content: center; line-height: 1; z-index: 10;
+  }
+  body.edit-mode .method-row:hover > .delete-btn,
+  body.edit-mode .event-card:hover > .delete-btn,
+  body.edit-mode .event-detail:hover > .delete-btn { display: flex; }
+  .method-row, .event-card, .event-detail { position: relative; }
+
+  /* ── ADD BUTTONS ── */
+  .add-row-btn {
+    display: none; width: 100%; padding: 7px;
+    background: transparent; border: 1px dashed var(--rule); border-radius: 4px;
+    color: var(--mid); font-family: 'DM Mono', monospace; font-size: 10px;
+    cursor: pointer; letter-spacing: 0.08em; margin-top: 8px; transition: all 0.15s;
+  }
+  .add-row-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(200,64,26,0.04); }
+  body.edit-mode .add-row-btn { display: block; }
+
+  /* ── HEADER ── */
+  .doc-header {
+    border-top: 3px solid var(--ink); border-bottom: 1px solid var(--rule);
+    padding: 32px 0 28px; margin-bottom: 52px;
+    display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: end;
+  }
+  .doc-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mid); margin-bottom: 10px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 52px; line-height: 1.05; letter-spacing: -0.02em; }
+  h1 em { font-style: italic; color: var(--accent); }
+  .doc-meta { text-align: right; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--mid); line-height: 1.8; }
+
+  /* ── SECTIONS ── */
+  section { margin-bottom: 56px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+  .section-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.1em; min-width: 32px; }
+  h2 { font-family: 'DM Serif Display', serif; font-size: 26px; letter-spacing: -0.01em; color: var(--ink); flex: 1; }
+  .rule-line { flex: 1; height: 1px; background: var(--rule); }
+
+  /* ── CALENDAR ── */
+  .calendar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .event-card { border: 1px solid var(--rule); border-radius: 4px; overflow: visible; }
+  .event-card.past { border-left: 3px solid var(--green); }
+  .event-card.future { border-left: 3px solid var(--amber); opacity: 0.9; }
+  .event-card-header { padding: 14px 18px 10px; background: white; border-bottom: 1px solid var(--rule); }
+  .event-badge { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; display: inline-block; margin-bottom: 8px; cursor: pointer; }
+  body.edit-mode .event-badge:hover { opacity: 0.7; }
+  .badge-past { background: var(--green-light); color: var(--green); }
+  .badge-future { background: var(--amber-light); color: var(--amber); }
+  .event-name { font-family: 'DM Serif Display', serif; font-size: 19px; line-height: 1.2; color: var(--ink); }
+  .event-location { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--mid); margin-top: 4px; letter-spacing: 0.05em; }
+  .event-body { padding: 14px 18px; background: var(--paper); }
+  .event-detail { font-size: 13px; color: var(--ink); line-height: 1.6; margin-bottom: 6px; display: flex; gap: 8px; }
+  .event-detail:last-of-type { margin-bottom: 0; }
+  .detail-dot { color: var(--accent); flex-shrink: 0; margin-top: 2px; font-size: 10px; }
+
+  /* ── METHODS ── */
+  .methods-list { display: flex; flex-direction: column; gap: 12px; }
+  .method-row { display: grid; grid-template-columns: 240px 1fr auto; border: 1px solid var(--rule); border-radius: 4px; overflow: visible; background: white; }
+  .method-name { padding: 16px 20px; border-right: 1px solid var(--rule); font-weight: 500; font-size: 14px; color: var(--ink); display: flex; align-items: center; }
+  .method-desc { padding: 16px 20px; font-size: 13px; color: var(--mid); line-height: 1.6; display: flex; align-items: center; }
+  .method-status { padding: 16px 20px; display: flex; align-items: center; justify-content: center; min-width: 130px; border-left: 1px solid var(--rule); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; cursor: pointer; }
+  body.edit-mode .method-status:hover { opacity: 0.75; }
+  .status-fail { background: var(--red-light); color: #c0392b; }
+  .status-partial { background: var(--amber-light); color: var(--amber); }
+  .status-unavailable { background: #f0f0f0; color: #999; }
+  .status-ok { background: var(--green-light); color: var(--green); }
+
+  /* ── SUMMARY ── */
+  .summary-box { border: 1px solid var(--rule); border-top: 3px solid var(--accent); padding: 28px 32px; background: white; border-radius: 0 0 4px 4px; }
+  .summary-box p { font-size: 14px; color: var(--mid); line-height: 1.8; margin-bottom: 10px; }
+  .summary-box p:last-child { margin-bottom: 0; }
+  .summary-box strong { color: var(--ink); font-weight: 500; }
+
+  /* ── FOOTER ── */
+  .doc-footer { border-top: 1px solid var(--rule); padding-top: 24px; margin-top: 60px; display: flex; justify-content: space-between; align-items: center; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--mid); letter-spacing: 0.05em; }
+
+  /* ══════════════════════════════
+     GALLERY TAB
+  ══════════════════════════════ */
+  .gallery-page { padding-bottom: 60px; }
+
+  .gallery-page h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    border-top: 3px solid var(--ink);
+    border-bottom: 1px solid var(--rule);
+    padding: 28px 0 24px;
+    margin-bottom: 40px;
+  }
+
+  .gallery-page h1 em { font-style: italic; color: var(--accent); }
+
+  /* Event gallery block */
+  .gallery-event {
+    margin-bottom: 52px;
+    position: relative;
+  }
+
+  .gallery-event-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .gallery-event-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    color: var(--ink);
+  }
+
+  .gallery-event-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--mid);
+    letter-spacing: 0.08em;
+  }
+
+  .gallery-event-meta.past { color: var(--green); }
+  .gallery-event-meta.future { color: var(--amber); }
+
+  .gallery-add-event-btn {
+    display: none;
+    background: transparent;
+    border: 1px dashed var(--rule);
+    border-radius: 4px;
+    padding: 10px 18px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--mid);
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    margin-bottom: 32px;
+    transition: all 0.15s;
+  }
+
+  .gallery-add-event-btn:hover { border-color: var(--accent); color: var(--accent); }
+  body.edit-mode .gallery-add-event-btn { display: inline-block; }
+
+  /* Delete gallery event */
+  .gallery-event-del {
+    display: none;
+    position: absolute;
+    top: 0; right: 0;
+    background: #e74c3c; border: none; border-radius: 4px;
+    color: white; font-size: 11px; padding: 3px 10px;
+    cursor: pointer; font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  body.edit-mode .gallery-event:hover .gallery-event-del { display: block; }
+
+  /* Photo grid */
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .photo-item {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #e8e5de;
+    aspect-ratio: 4/3;
+    cursor: pointer;
+  }
+
+  .photo-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+  }
+
+  .photo-item:hover img { transform: scale(1.03); }
+
+  .photo-caption {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.65));
+    color: white;
+    font-size: 11px;
+    padding: 20px 10px 8px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .photo-item:hover .photo-caption { opacity: 1; }
+
+  .photo-del {
+    display: none;
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 24px; height: 24px;
+    background: rgba(231,76,60,0.9); border: none; border-radius: 50%;
+    color: white; font-size: 13px; cursor: pointer;
+    align-items: center; justify-content: center;
+    z-index: 5;
+  }
+
+  body.edit-mode .photo-item:hover .photo-del { display: flex; }
+
+  /* Add photo tile */
+  .photo-add-tile {
+    display: none;
+    aspect-ratio: 4/3;
+    border: 2px dashed var(--rule);
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--mid);
+    letter-spacing: 0.08em;
+    transition: all 0.15s;
+  }
+
+  .photo-add-tile:hover { border-color: var(--accent); color: var(--accent); background: rgba(200,64,26,0.04); }
+  .photo-add-tile .plus { font-size: 28px; line-height: 1; font-weight: 300; }
+  body.edit-mode .photo-add-tile { display: flex; }
+
+  /* Empty gallery state */
+  .gallery-empty {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 0.08em;
+    padding: 20px 0;
+  }
+
+  /* ── LIGHTBOX ── */
+  #lightbox {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 5000;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  #lightbox.open { display: flex; }
+
+  #lightbox img {
+    max-width: 90vw;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.5);
+  }
+
+  #lightbox-caption {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.08em;
+  }
+
+  #lightbox-close {
+    position: absolute;
+    top: 20px; right: 24px;
+    background: none; border: none;
+    color: white; font-size: 28px; cursor: pointer;
+    line-height: 1; opacity: 0.7;
+  }
+
+  #lightbox-close:hover { opacity: 1; }
+
+  #lightbox-nav {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 16px;
+    pointer-events: none;
+  }
+
+  .lb-arrow {
+    pointer-events: all;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    width: 44px; height: 44px;
+    color: white; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .lb-arrow:hover { background: rgba(255,255,255,0.25); }
+
+  /* ── MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 8px; padding: 32px; width: 480px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .modal h3 { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 20px; color: var(--ink); }
+  .modal label { display: block; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--mid); margin-bottom: 6px; margin-top: 14px; }
+  .modal input, .modal textarea, .modal select { width: 100%; padding: 10px 14px; border: 1px solid var(--rule); border-radius: 4px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--ink); background: var(--paper); outline: none; }
+  .modal input:focus, .modal textarea:focus, .modal select:focus { border-color: var(--accent); background: white; }
+  .modal textarea { min-height: 80px; resize: vertical; }
+  .modal-buttons { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+  .modal-buttons button { padding: 9px 20px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; letter-spacing: 0.05em; }
+  .btn-cancel { background: white; border: 1px solid var(--rule); color: var(--mid); }
+  .btn-confirm { background: var(--accent); border: 1px solid var(--accent); color: white; }
+
+  /* ── SAVE NOTICE ── */
+  #save-notice { display: none; position: fixed; bottom: 24px; right: 24px; background: var(--green); color: white; padding: 12px 20px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; z-index: 3000; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+
+  /* ── PRINT ── */
+  @media print {
+    #toolbar, .tab-bar, .add-row-btn, .delete-btn, .gallery-add-event-btn, .photo-add-tile, .photo-del { display: none !important; }
+    body { padding-top: 40px; }
+    .tab-panel { display: block !important; }
+    .event-card, .method-row, .summary-box { break-inside: avoid; }
+  }
+</style>
+</head>
+<body class="edit-mode">
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <span class="toolbar-title">✏️ Edycja</span>
+  <button id="btn-add-event" onclick="openEventModal()" style="display:none">+ Wydarzenie</button>
+  <button id="btn-add-method" onclick="addMethodRow('methods-1')" style="display:none">+ Metoda</button>
+  <button id="btn-add-game" onclick="addMethodRow('games-1')" style="display:none">+ Gra</button>
+  <button id="btn-add-gallery-event" onclick="openGalleryEventModal()" style="display:none">+ Sekcja galerii</button>
+  <span class="spacer"></span>
+  <span class="hint" id="toolbar-hint">Kliknij tekst aby edytować · Kliknij status/badge aby zmienić · 🗑 usuwa element</span>
+  <button class="success" onclick="saveHTML()">💾 Zapisz HTML</button>
+  <button onclick="window.print()">🖨 PDF</button>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('report', this)">📄 Raport</button>
+  <button class="tab-btn" onclick="switchTab('gallery', this)">🖼 Galeria</button>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeLightbox(event)">
+  <button id="lightbox-close" onclick="closeLightbox()">×</button>
+  <div id="lightbox-nav">
+    <button class="lb-arrow" onclick="lbNav(-1); event.stopPropagation()">‹</button>
+    <button class="lb-arrow" onclick="lbNav(1); event.stopPropagation()">›</button>
+  </div>
+  <img id="lightbox-img" src="" alt="">
+  <div id="lightbox-caption"></div>
+</div>
+
+<!-- EVENT MODAL -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal">
+    <h3>Nowe wydarzenie</h3>
+    <label>Nazwa</label><input id="m-name" type="text" placeholder="np. Konferencja XYZ">
+    <label>Miasto</label><input id="m-city" type="text" placeholder="np. Warszawa">
+    <label>Data</label><input id="m-date" type="text" placeholder="np. 15 września 2026">
+    <label>Status</label>
+    <select id="m-status">
+      <option value="past">Odbyło się</option>
+      <option value="future">Potwierdzone</option>
+    </select>
+    <label>Szczegóły (każda linia = osobny punkt)</label>
+    <textarea id="m-details" placeholder="np. 2 strefy z Trikim&#10;Format: stoisko aktywacyjne"></textarea>
+    <div class="modal-buttons">
+      <button class="btn-cancel" onclick="closeModal('event-modal')">Anuluj</button>
+      <button class="btn-confirm" onclick="confirmAddEvent()">Dodaj</button>
+    </div>
+  </div>
+</div>
+
+<!-- GALLERY EVENT MODAL -->
+<div class="modal-overlay" id="gallery-event-modal">
+  <div class="modal">
+    <h3>Nowa sekcja w galerii</h3>
+    <label>Nazwa wydarzenia</label><input id="ge-name" type="text" placeholder="np. Impakt Poznań">
+    <label>Miasto i data</label><input id="ge-meta" type="text" placeholder="np. Poznań · 13–14 maja 2026">
+    <label>Typ</label>
+    <select id="ge-type">
+      <option value="past">Odbyło się</option>
+      <option value="future">Planowane</option>
+    </select>
+    <div class="modal-buttons">
+      <button class="btn-cancel" onclick="closeModal('gallery-event-modal')">Anuluj</button>
+      <button class="btn-confirm" onclick="confirmAddGalleryEvent()">Dodaj</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVE NOTICE -->
+<div id="save-notice">✓ Plik zapisany!</div>
+
+<!-- HIDDEN FILE INPUT -->
+<input type="file" id="file-input" accept="image/*" multiple style="display:none">
+
+<!-- ═══════════════════════════════════
+     TAB: RAPORT
+═══════════════════════════════════ -->
+<div class="tab-panel active" id="tab-report">
+
+  <header class="doc-header">
+    <div>
+      <div class="doc-label" contenteditable="true">Raport techniczny · Żappka</div>
+      <h1><em contenteditable="true">Triki</em></h1>
+    </div>
+    <div class="doc-meta">
+      Data: <span contenteditable="true">20.05.2026</span><br>
+      Wersja: <span contenteditable="true">1.2</span><br>
+      Status: <span contenteditable="true">Roboczy</span>
+    </div>
+  </header>
+
+  <!-- SEKCJA 1: KALENDARZ -->
+  <section>
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 contenteditable="true">Kalendarz wydarzeń</h2>
+      <div class="rule-line"></div>
+    </div>
+    <div class="calendar-grid" id="calendar-grid">
+
+      <div class="event-card past">
+        <button class="delete-btn" onclick="this.closest('.event-card').remove()">×</button>
+        <div class="event-card-header">
+          <span class="event-badge badge-past" onclick="toggleBadge(this)">Odbyło się</span>
+          <div class="event-name" contenteditable="true">Spotkanie Strategiczne</div>
+          <div class="event-location" contenteditable="true">📍 Sopot · 5–6 maja 2026</div>
+        </div>
+        <div class="event-body">
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true"><strong>2 strefy</strong> z Trikim działające równolegle</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Rywalizacja na scenie – tryb versus między uczestnikami</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Format: aktywizacja podczas eventu zamkniętego</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <button class="add-row-btn" onclick="addDetailToCard(this)">+ dodaj punkt</button>
+        </div>
+      </div>
+
+      <div class="event-card past">
+        <button class="delete-btn" onclick="this.closest('.event-card').remove()">×</button>
+        <div class="event-card-header">
+          <span class="event-badge badge-past" onclick="toggleBadge(this)">Odbyło się</span>
+          <div class="event-name" contenteditable="true">Impakt</div>
+          <div class="event-location" contenteditable="true">📍 Poznań · 13–14 maja 2026</div>
+        </div>
+        <div class="event-body">
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true"><strong>1 strefa</strong> z Trikim</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Wydarzenie otwarte – duży ruch uczestników</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Format: stoisko aktywacyjne</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <button class="add-row-btn" onclick="addDetailToCard(this)">+ dodaj punkt</button>
+        </div>
+      </div>
+
+      <div class="event-card future">
+        <button class="delete-btn" onclick="this.closest('.event-card').remove()">×</button>
+        <div class="event-card-header">
+          <span class="event-badge badge-future" onclick="toggleBadge(this)">Potwierdzone</span>
+          <div class="event-name" contenteditable="true">Dzień Dziecka – Pepsi</div>
+          <div class="event-location" contenteditable="true">📍 Warszawa · 19 czerwca 2026</div>
+        </div>
+        <div class="event-body">
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">Wydarzenie z okazji Dnia Dziecka we współpracy z marką Pepsi</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true"><strong>1 stanowisko</strong> z Trikim – stoisko analogiczne do Spotkania Strategicznego w Sopocie</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>
+          <button class="add-row-btn" onclick="addDetailToCard(this)">+ dodaj punkt</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SEKCJA 2: METODY -->
+  <section>
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 contenteditable="true">Metody wyświetlania na telewizorze</h2>
+      <div class="rule-line"></div>
+    </div>
+    <div class="methods-list" id="methods-1">
+      <div class="method-row">
+        <button class="delete-btn" onclick="this.closest('.method-row').remove()">×</button>
+        <div class="method-name" contenteditable="true">Kabel + karta przechwytująca</div>
+        <div class="method-desc" contenteditable="true">Telefon podłączony kablem przez kartę przechwytującą do komputera, następnie HDMI na TV. Triki łączy się z aplikacją Żappka na telefonie poprawnie, jednak samo przesyłanie obrazu na TV wykazuje jeszcze większą niestabilność niż klonowanie przez sprzęt iOS – połączenie zrywa się znacznie częściej i trudniej je utrzymać.</div>
+        <div class="method-status status-partial" onclick="cycleStatus(this)" contenteditable="true">Bardzo niestabilne</div>
+      </div>
+      <div class="method-row">
+        <button class="delete-btn" onclick="this.closest('.method-row').remove()">×</button>
+        <div class="method-name" contenteditable="true">Klonowanie iPhone'a → Mac Studio</div>
+        <div class="method-desc" contenteditable="true">Klonowanie ekranu iPhone'a przez funkcję systemową na Mac Studio, następnie HDMI na TV. Triki łączy się poprawnie z aplikacją na telefonie, jednak klonowanie ekranu między urządzeniami jest niestabilne i regularnie się zrywa.</div>
+        <div class="method-status status-partial" onclick="cycleStatus(this)" contenteditable="true">Niestabilne</div>
+      </div>
+      <div class="method-row">
+        <button class="delete-btn" onclick="this.closest('.method-row').remove()">×</button>
+        <div class="method-name" contenteditable="true">Klonowanie iPhone'a → MacBook</div>
+        <div class="method-desc" contenteditable="true">Analogiczna konfiguracja jak z Mac Studio. Triki łączy się z aplikacją na telefonie, ale klonowanie ekranu między urządzeniami regularnie się urywało – identyczny efekt jak z Mac Studio.</div>
+        <div class="method-status status-partial" onclick="cycleStatus(this)" contenteditable="true">Niestabilne</div>
+      </div>
+      <div class="method-row">
+        <button class="delete-btn" onclick="this.closest('.method-row').remove()">×</button>
+        <div class="method-name" contenteditable="true">Aplikacja na tablicy interaktywnej</div>
+        <div class="method-desc" contenteditable="true">Żappka zainstalowana bezpośrednio na tablicy interaktywnej (system Android). Triki nie nawiązywał połączenia z aplikacją – tablica nie obsługuje wymaganego stosu Bluetooth. Dział techniczny sugeruje instalację aplikacji bezpośrednio na sprzęcie, na którym odbywa się gra, bez żadnych pośredników.</div>
+        <div class="method-status status-fail" onclick="cycleStatus(this)" contenteditable="true">Brak połączenia</div>
+      </div>
+      <div class="method-row">
+        <button class="delete-btn" onclick="this.closest('.method-row').remove()">×</button>
+        <div class="method-name" contenteditable="true">Emulator Android (BlueStacks)</div>
+        <div class="method-desc" contenteditable="true">Żappka uruchomiona przez emulator na komputerze. Triki nie łączył się z aplikacją – emulator nie udostępnia rzeczywistego Bluetooth. Potwierdza rekomendację działu technicznego: aplikacja musi działać natywnie na docelowym urządzeniu.</div>
+        <div class="method-status status-fail" onclick="cycleStatus(this)" contenteditable="true">Brak połączenia</div>
+      </div>
+      <div class="method-row">
+        <button class="delete-btn" onclick="this.closest('.method-row').remove()">×</button>
+        <div class="method-name" contenteditable="true">Klonowanie ekranu iPhone'a (macOS)</div>
+        <div class="method-desc" contenteditable="true">Funkcja "Klonowanie iPhone'a" wbudowana w macOS Sequoia/Tahoe – Triki łączy się z aplikacją na telefonie, a ekran jest wyświetlany na Macu i dalej przez HDMI na TV. Technicznie obiecująca opcja, jednak niedostępna w Polsce ze względu na ograniczenia regionalne Apple.</div>
+        <div class="method-status status-unavailable" onclick="cycleStatus(this)" contenteditable="true">Niedostępne PL</div>
+      </div>
+      <button class="add-row-btn" onclick="addMethodRow('methods-1')">+ dodaj metodę</button>
+    </div>
+  </section>
+
+  <!-- SEKCJA 3: GRY -->
+  <section>
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 contenteditable="true">Dostępne gry w Triki</h2>
+      <div class="rule-line"></div>
+    </div>
+    <div class="methods-list" id="games-1">
+      <div class="method-row">
+        <button class="delete-btn" onclick="this.closest('.method-row').remove()">×</button>
+        <div class="method-name" contenteditable="true">🥊 Bokser</div>
+        <div class="method-desc" contenteditable="true">Triki wciska się głęboko w pięść. Uczestnik staje w rozkroku i uderza lewym lub prawym prostym – urządzenie mierzy siłę uderzenia i generuje wynik punktowy.</div>
+        <div class="method-status status-ok" onclick="cycleStatus(this)" contenteditable="true">Siła uderzenia</div>
+      </div>
+      <div class="method-row">
+        <button class="delete-btn" onclick="this.closest('.method-row').remove()">×</button>
+        <div class="method-name" contenteditable="true">🐸 Ninja Frog</div>
+        <div class="method-desc" contenteditable="true">Potrząśnięcie Trikim startuje grę. Dalsze potrząsanie powoduje wznoszenie się postaci – żaby ninja. Zadanie polega na omijaniu przeszkód i zbieraniu monet na jak najwyższy wynik.</div>
+        <div class="method-status status-ok" onclick="cycleStatus(this)" contenteditable="true">Potrząsanie</div>
+      </div>
+      <div class="method-row">
+        <button class="delete-btn" onclick="this.closest('.method-row').remove()">×</button>
+        <div class="method-name" contenteditable="true">🪙 Toss</div>
+        <div class="method-desc" contenteditable="true">Ekran pokazuje zadaną liczbę obrotów. Uczestnik podrzuca Triki jak monetę i musi trafić w dokładnie tę liczbę. Seria trafień z rzędu aktywuje mnożnik punktów.</div>
+        <div class="method-status status-ok" onclick="cycleStatus(this)" contenteditable="true">Rzut / obroty</div>
+      </div>
+      <div class="method-row">
+        <button class="delete-btn" onclick="this.closest('.method-row').remove()">×</button>
+        <div class="method-name" contenteditable="true">🐍 Snake</div>
+        <div class="method-desc" contenteditable="true">Triki leży na stole – obracanie urządzeniem steruje wężem na ekranie. Cel to zbieranie monet i rozbijanie bloków przy jednoczesnym unikaniu kolizji.</div>
+        <div class="method-status status-ok" onclick="cycleStatus(this)" contenteditable="true">Obrót na stole</div>
+      </div>
+      <div class="method-row">
+        <button class="delete-btn" onclick="this.closest('.method-row').remove()">×</button>
+        <div class="method-name" contenteditable="true">🐍 Snake 1v1</div>
+        <div class="method-desc" contenteditable="true">Tryb multiplayer – dwa Triki podłączone przez Bluetooth do jednego telefonu. Każdy uczestnik obraca swoim urządzeniem, sterując własnym wężem. Wygrywa ten, kto wyeliminuje przeciwnika.</div>
+        <div class="method-status status-partial" onclick="cycleStatus(this)" contenteditable="true">2 gracze</div>
+      </div>
+      <button class="add-row-btn" onclick="addMethodRow('games-1')">+ dodaj grę</button>
+    </div>
+  </section>
+
+  <!-- SEKCJA 4: WNIOSKI -->
+  <section>
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 contenteditable="true">Wnioski</h2>
+      <div class="rule-line"></div>
+    </div>
+    <div class="summary-box">
+      <p contenteditable="true">Triki łączy się przez Bluetooth z <strong>aplikacją Żappka</strong>, a nie bezpośrednio ze sprzętem. Oznacza to, że kluczowe jest to, na jakim urządzeniu działa aplikacja – nie samo urządzenie wyświetlające. Triki działa poprawnie z <strong>iPhone'em oraz iPadem</strong> z zainstalowaną Żappką.</p>
+      <p contenteditable="true">Dział techniczny rekomenduje instalację aplikacji <strong>bezpośrednio na urządzeniu, na którym odbywa się gra</strong> – bez żadnych pośredników. Emulatory, tablice interaktywne i inne środowiska pośrednie nie udostępniają prawdziwego Bluetooth wymaganego do połączenia z Trikim.</p>
+      <p contenteditable="true">Metody oparte na klonowaniu ekranu iPhone'a (Mac Studio, MacBook) działają poprawnie po stronie połączenia Triki–aplikacja, jednak problemem pozostaje <strong>niestabilność przesyłania obrazu</strong> między telefonem a komputerem. Kierunek do dalszego testowania to stabilizacja tego połączenia, np. przez kabel USB zamiast Wi-Fi.</p>
+    </div>
+  </section>
+
+  <footer class="doc-footer">
+    <span contenteditable="true">Triki · Raport Techniczny · v1.2</span>
+    <span contenteditable="true">Żappka / Żabka Polska · 2026</span>
+  </footer>
+
+</div><!-- /tab-report -->
+
+<!-- ═══════════════════════════════════
+     TAB: GALERIA
+═══════════════════════════════════ -->
+<div class="tab-panel" id="tab-gallery">
+  <div class="gallery-page">
+
+    <h1>Galeria <em>wydarzeń</em></h1>
+
+    <div id="gallery-container">
+
+      <!-- SOPOT -->
+      <div class="gallery-event" data-event="sopot">
+        <button class="gallery-event-del" onclick="this.closest('.gallery-event').remove()">usuń sekcję</button>
+        <div class="gallery-event-header">
+          <div class="gallery-event-name" contenteditable="true">Spotkanie Strategiczne</div>
+          <div class="gallery-event-meta past" contenteditable="true">Sopot · 5–6 maja 2026</div>
+        </div>
+        <div class="photo-grid" id="grid-sopot">
+          <button class="photo-add-tile" onclick="triggerUpload('grid-sopot')">
+            <span class="plus">+</span>
+            <span>Dodaj zdjęcia</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- IMPAKT -->
+      <div class="gallery-event" data-event="impakt">
+        <button class="gallery-event-del" onclick="this.closest('.gallery-event').remove()">usuń sekcję</button>
+        <div class="gallery-event-header">
+          <div class="gallery-event-name" contenteditable="true">Impakt</div>
+          <div class="gallery-event-meta past" contenteditable="true">Poznań · 13–14 maja 2026</div>
+        </div>
+        <div class="photo-grid" id="grid-impakt">
+          <button class="photo-add-tile" onclick="triggerUpload('grid-impakt')">
+            <span class="plus">+</span>
+            <span>Dodaj zdjęcia</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- DZIEŃ DZIECKA -->
+      <div class="gallery-event" data-event="pepsi">
+        <button class="gallery-event-del" onclick="this.closest('.gallery-event').remove()">usuń sekcję</button>
+        <div class="gallery-event-header">
+          <div class="gallery-event-name" contenteditable="true">Dzień Dziecka – Pepsi</div>
+          <div class="gallery-event-meta future" contenteditable="true">Warszawa · 19 czerwca 2026</div>
+        </div>
+        <div class="photo-grid" id="grid-pepsi">
+          <button class="photo-add-tile" onclick="triggerUpload('grid-pepsi')">
+            <span class="plus">+</span>
+            <span>Dodaj wizki / zdjęcia</span>
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /gallery-container -->
+
+    <button class="gallery-add-event-btn" onclick="openGalleryEventModal()">+ Dodaj nową sekcję</button>
+
+  </div>
+</div><!-- /tab-gallery -->
+
+<script>
+// ─── TABS ───
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+
+  // Show/hide toolbar buttons
+  const isReport = name === 'report';
+  const isGallery = name === 'gallery';
+  document.getElementById('btn-add-event').style.display = isReport ? '' : 'none';
+  document.getElementById('btn-add-method').style.display = isReport ? '' : 'none';
+  document.getElementById('btn-add-game').style.display = isReport ? '' : 'none';
+  document.getElementById('btn-add-gallery-event').style.display = isGallery ? '' : 'none';
+  document.getElementById('toolbar-hint').textContent = isGallery
+    ? 'Kliknij + Dodaj zdjęcia · hover na zdjęcie aby usunąć · kliknij zdjęcie aby powiększyć'
+    : 'Kliknij tekst aby edytować · Kliknij status/badge aby zmienić · 🗑 usuwa element';
+}
+
+// init toolbar buttons state
+document.getElementById('btn-add-event').style.display = '';
+document.getElementById('btn-add-method').style.display = '';
+document.getElementById('btn-add-game').style.display = '';
+document.getElementById('btn-add-gallery-event').style.display = 'none';
+
+// ─── STATUS CYCLE ───
+const statuses = [
+  { cls: 'status-ok', label: 'Działa' },
+  { cls: 'status-partial', label: 'Niestabilne' },
+  { cls: 'status-fail', label: 'Brak połączenia' },
+  { cls: 'status-unavailable', label: 'Niedostępne PL' },
+];
+
+function cycleStatus(el) {
+  const current = statuses.findIndex(s => el.classList.contains(s.cls));
+  const next = (current + 1) % statuses.length;
+  statuses.forEach(s => el.classList.remove(s.cls));
+  el.classList.add(statuses[next].cls);
+}
+
+// ─── BADGE TOGGLE ───
+function toggleBadge(el) {
+  if (el.classList.contains('badge-past')) {
+    el.classList.replace('badge-past', 'badge-future');
+    el.textContent = 'Potwierdzone';
+    el.closest('.event-card').classList.replace('past', 'future');
+  } else {
+    el.classList.replace('badge-future', 'badge-past');
+    el.textContent = 'Odbyło się';
+    el.closest('.event-card').classList.replace('future', 'past');
+  }
+}
+
+// ─── ADD METHOD ROW ───
+function addMethodRow(containerId) {
+  const container = document.getElementById(containerId);
+  const addBtn = container.querySelector('.add-row-btn');
+  const row = document.createElement('div');
+  row.className = 'method-row';
+  row.innerHTML = `
+    <button class="delete-btn" onclick="this.closest('.method-row').remove()">×</button>
+    <div class="method-name" contenteditable="true">Nowa pozycja</div>
+    <div class="method-desc" contenteditable="true">Opis...</div>
+    <div class="method-status status-partial" onclick="cycleStatus(this)" contenteditable="true">Status</div>
+  `;
+  container.insertBefore(row, addBtn);
+  row.querySelector('.method-name').focus();
+}
+
+// ─── ADD DETAIL ───
+function addDetailToCard(btn) {
+  const body = btn.closest('.event-body');
+  const detail = document.createElement('div');
+  detail.className = 'event-detail';
+  detail.innerHTML = `<span class="detail-dot">▸</span><span contenteditable="true">Nowy punkt</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button>`;
+  body.insertBefore(detail, btn);
+  detail.querySelector('[contenteditable]').focus();
+}
+
+// ─── MODALS ───
+function openEventModal() { document.getElementById('event-modal').classList.add('open'); }
+function openGalleryEventModal() { document.getElementById('gallery-event-modal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ─── ADD CALENDAR EVENT ───
+function confirmAddEvent() {
+  const name = document.getElementById('m-name').value || 'Nowe wydarzenie';
+  const city = document.getElementById('m-city').value || 'Miasto';
+  const date = document.getElementById('m-date').value || '';
+  const status = document.getElementById('m-status').value;
+  const details = document.getElementById('m-details').value.trim().split('\n').filter(Boolean);
+  const isPast = status === 'past';
+  const badgeText = isPast ? 'Odbyło się' : 'Potwierdzone';
+  const cardClass = isPast ? 'past' : 'future';
+  const badgeClass = isPast ? 'badge-past' : 'badge-future';
+  const location = date ? `📍 ${city} · ${date}` : `📍 ${city}`;
+  const detailsHTML = details.map(d =>
+    `<div class="event-detail"><span class="detail-dot">▸</span><span contenteditable="true">${d}</span><button class="delete-btn" style="right:-28px" onclick="this.closest('.event-detail').remove()">×</button></div>`
+  ).join('');
+  const card = document.createElement('div');
+  card.className = `event-card ${cardClass}`;
+  card.innerHTML = `
+    <button class="delete-btn" onclick="this.closest('.event-card').remove()">×</button>
+    <div class="event-card-header">
+      <span class="event-badge ${badgeClass}" onclick="toggleBadge(this)">${badgeText}</span>
+      <div class="event-name" contenteditable="true">${name}</div>
+      <div class="event-location" contenteditable="true">${location}</div>
+    </div>
+    <div class="event-body">
+      ${detailsHTML}
+      <button class="add-row-btn" onclick="addDetailToCard(this)">+ dodaj punkt</button>
+    </div>
+  `;
+  document.getElementById('calendar-grid').appendChild(card);
+  ['m-name','m-city','m-date','m-details'].forEach(id => document.getElementById(id).value = '');
+  closeModal('event-modal');
+}
+
+// ─── ADD GALLERY EVENT ───
+function confirmAddGalleryEvent() {
+  const name = document.getElementById('ge-name').value || 'Nowe wydarzenie';
+  const meta = document.getElementById('ge-meta').value || '';
+  const type = document.getElementById('ge-type').value;
+  const gridId = 'grid-' + name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'').slice(0,20) + '-' + Date.now();
+  const block = document.createElement('div');
+  block.className = 'gallery-event';
+  block.innerHTML = `
+    <button class="gallery-event-del" onclick="this.closest('.gallery-event').remove()">usuń sekcję</button>
+    <div class="gallery-event-header">
+      <div class="gallery-event-name" contenteditable="true">${name}</div>
+      <div class="gallery-event-meta ${type}" contenteditable="true">${meta}</div>
+    </div>
+    <div class="photo-grid" id="${gridId}">
+      <button class="photo-add-tile" onclick="triggerUpload('${gridId}')">
+        <span class="plus">+</span>
+        <span>Dodaj zdjęcia</span>
+      </button>
+    </div>
+  `;
+  document.getElementById('gallery-container').appendChild(block);
+  document.getElementById('ge-name').value = '';
+  document.getElementById('ge-meta').value = '';
+  closeModal('gallery-event-modal');
+}
+
+// ─── PHOTO UPLOAD ───
+let currentGridId = null;
+
+function triggerUpload(gridId) {
+  currentGridId = gridId;
+  const input = document.getElementById('file-input');
+  input.value = '';
+  input.onchange = handleFiles;
+  input.click();
+}
+
+function handleFiles(e) {
+  const files = Array.from(e.target.files);
+  if (!currentGridId) return;
+  files.forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = ev => addPhotoToGrid(currentGridId, ev.target.result, file.name);
+    reader.readAsDataURL(file);
+  });
+}
+
+function addPhotoToGrid(gridId, src, caption) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  const addTile = grid.querySelector('.photo-add-tile');
+  const item = document.createElement('div');
+  item.className = 'photo-item';
+  const name = caption.replace(/\.[^.]+$/, '');
+  item.innerHTML = `
+    <img src="${src}" alt="${name}" onclick="openLightbox(this)">
+    <div class="photo-caption" contenteditable="true">${name}</div>
+    <button class="photo-del" onclick="this.closest('.photo-item').remove()">×</button>
+  `;
+  grid.insertBefore(item, addTile);
+}
+
+// ─── LIGHTBOX ───
+let lbImages = [];
+let lbIndex = 0;
+
+function openLightbox(img) {
+  const grid = img.closest('.photo-grid');
+  lbImages = Array.from(grid.querySelectorAll('.photo-item img'));
+  lbIndex = lbImages.indexOf(img);
+  showLbImage();
+  document.getElementById('lightbox').classList.add('open');
+  document.addEventListener('keydown', lbKeyHandler);
+}
+
+function showLbImage() {
+  const img = lbImages[lbIndex];
+  document.getElementById('lightbox-img').src = img.src;
+  const cap = img.closest('.photo-item').querySelector('.photo-caption');
+  document.getElementById('lightbox-caption').textContent = cap ? cap.textContent : '';
+}
+
+function lbNav(dir) {
+  lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length;
+  showLbImage();
+}
+
+function closeLightbox(e) {
+  if (e && e.target !== document.getElementById('lightbox') && e.target !== document.getElementById('lightbox-close')) return;
+  if (!e) {}
+  document.getElementById('lightbox').classList.remove('open');
+  document.removeEventListener('keydown', lbKeyHandler);
+}
+
+function lbKeyHandler(e) {
+  if (e.key === 'ArrowRight') lbNav(1);
+  if (e.key === 'ArrowLeft') lbNav(-1);
+  if (e.key === 'Escape') { document.getElementById('lightbox').classList.remove('open'); document.removeEventListener('keydown', lbKeyHandler); }
+}
+
+document.getElementById('lightbox-close').onclick = () => {
+  document.getElementById('lightbox').classList.remove('open');
+  document.removeEventListener('keydown', lbKeyHandler);
+};
+
+// ─── SAVE HTML ───
+function saveHTML() {
+  const clone = document.documentElement.cloneNode(true);
+  clone.querySelector('#toolbar')?.remove();
+  clone.querySelectorAll('.modal-overlay').forEach(el => el.remove());
+  clone.querySelector('#save-notice')?.remove();
+  clone.querySelector('#lightbox')?.remove();
+  clone.querySelector('#file-input')?.remove();
+  clone.querySelectorAll('.delete-btn, .add-row-btn, .gallery-event-del, .photo-del, .photo-add-tile, .gallery-add-event-btn').forEach(el => el.remove());
+  clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+  clone.querySelector('body')?.classList.remove('edit-mode');
+  clone.querySelector('body').style.paddingTop = '48px';
+  // Keep tab bar but remove tab switching interactivity from saved clean copy
+  const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'kapsel-triki.html';
+  a.click();
+  const notice = document.getElementById('save-notice');
+  notice.style.display = 'block';
+  setTimeout(() => notice.style.display = 'none', 2500);
+}
+</script>
+</body>
+</html>
