@@ -329,6 +329,111 @@
     .tab-panel { display: block !important; }
     .event-card, .method-row, .summary-box { break-inside: avoid; }
   }
+
+  /* ══ MOBILE ══ */
+  @media (max-width: 700px) {
+
+    body {
+      padding: 120px 16px 60px;
+      font-size: 15px;
+    }
+
+    /* Toolbar – dwie linie na mobile */
+    #toolbar {
+      height: auto;
+      flex-wrap: wrap;
+      padding: 8px 12px;
+      gap: 6px;
+    }
+
+    #toolbar .toolbar-title { display: none; }
+    #toolbar .hint { display: none; }
+    #toolbar .spacer { display: none; }
+
+    #toolbar button {
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+
+    #sync-status {
+      font-size: 10px;
+      flex: 1;
+    }
+
+    /* Tab bar */
+    .tab-bar { padding: 0 12px; top: auto; }
+    .tab-btn { padding: 10px 16px; font-size: 10px; letter-spacing: 0.08em; }
+
+    /* Nagłówek dokumentu */
+    .doc-header {
+      grid-template-columns: 1fr;
+      padding: 20px 0 16px;
+      margin-bottom: 32px;
+    }
+
+    h1 { font-size: 36px; }
+
+    .doc-meta { text-align: left; margin-top: 8px; }
+
+    /* Sekcje */
+    section { margin-bottom: 36px; }
+    h2 { font-size: 20px; }
+
+    /* Kalendarz – jedna kolumna */
+    .calendar-grid { grid-template-columns: 1fr; }
+
+    /* Metody – stack zamiast grid */
+    .method-row {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+    }
+
+    .method-name {
+      border-right: none;
+      border-bottom: 1px solid var(--rule);
+      padding: 12px 16px;
+      font-size: 14px;
+    }
+
+    .method-desc {
+      padding: 12px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .method-status {
+      border-left: none;
+      min-width: unset;
+      padding: 10px 16px;
+      justify-content: flex-start;
+      font-size: 10px;
+    }
+
+    /* How grid – jedna kolumna */
+    .how-grid { grid-template-columns: 1fr; }
+
+    /* How steps */
+    .how-steps { padding: 16px; }
+
+    /* Summary */
+    .summary-box { padding: 18px 16px; }
+
+    /* Galeria */
+    .photo-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+
+    .gallery-event-name { font-size: 18px; }
+
+    /* Delete buttons – zawsze widoczne na mobile (nie ma hover) */
+    body.edit-mode .delete-btn { display: flex !important; width: 28px; height: 28px; font-size: 15px; }
+    body.edit-mode .add-row-btn { display: block !important; }
+    body.edit-mode .gallery-add-event-btn { display: inline-block !important; }
+    body.edit-mode .photo-add-tile { display: flex !important; }
+    body.edit-mode .photo-del { display: flex !important; }
+    body.edit-mode .gallery-event-del { display: block !important; }
+
+    /* Footer */
+    .doc-footer { flex-direction: column; gap: 4px; text-align: center; }
+  }
 </style>
 </head>
 <body class="edit-mode">
